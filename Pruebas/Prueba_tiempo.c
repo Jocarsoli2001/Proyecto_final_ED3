@@ -16,6 +16,7 @@
 #include <string.h>		// Cadena
 
 #include <sys/time.h>	// Tiempo
+#include <time.h>
 
 /*
  +--------------------------------------------------------------------+
@@ -25,7 +26,7 @@
 	// Variables respecto a tiempo
 	static int seconds_last = 99;
 	char TimeString[128];
-	timeval curTime;
+	struct timeval curTime;
 /* 	
  +--------------------------------------------------------------------+
  |                                MAIN                                |
@@ -34,14 +35,14 @@
 int main(void)
 {
 
-	gettimeofday(&curTime, NULL);
-	if (seconds_last == curTime.tv_sec)
-		return;
-	
-	seconds_last = curTime.tv_sec;
-	
-	strftime(TimeString, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-	
+	while(1)
+	{
+		gettimeofday(&curTime, NULL);
+		seconds_last = curTime.tv_sec;
+		
+		strftime(TimeString, 80, "%Y-%m-%d %H:%M:%S\n", localtime(&curTime.tv_sec));
+		printf("Tiempo actual: %s", TimeString);
+	}
 	return 0;
 }
 
