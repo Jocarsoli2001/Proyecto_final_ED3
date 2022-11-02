@@ -1,7 +1,7 @@
 /*
 
 José Carlo Santizo Olivet - Carné 20185
-Consumidor
+Prueba interrupciones
 
 */
 
@@ -33,14 +33,6 @@ int Num_M = 0;
 int Num_N = 0;
 
 // Variables para generar array de chars
-char StringArray[MAX_CADENAS][MAX_LETRAS];
-char Buffer[MAX_LETRAS];                                        // Buffer común entre todos los hilos
-char cmd[50];
-char Tubos[50];
-int contador1 = 1, contador2 = 1;
-char Hilo_num[20];
-char Tubo_hilo[M_max];
-volatile int eventCounter = 0; 
 
 
 // Variable para Semaphore
@@ -51,6 +43,7 @@ void hilo1(void *ptr);
 void hilo2(void *ptr);
 void Funcion(void *ptr);
 void impresion_final();
+void myInterrupt(void);
 
 //-------------------------------------------- Main ------------------------------------------------
 int main(void) {
@@ -95,7 +88,14 @@ int main(void) {
 //----------------------------------------- Funciones ----------------------------------------------
 void myInterrupt(void) {
    
-   //
+   // Para prender LEDs cuando exista una interrupción
+   digitalWrite(LED2, HIGH);
+
+   sleep(5);
+
+   digitalWrite(LED2, LOW);
+
+   sleep(1);
 
 }
 
