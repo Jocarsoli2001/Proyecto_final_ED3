@@ -1,3 +1,5 @@
+// Compilar con -lwiringPi -lwiringPiDev
+
 /*
  +--------------------------------------------------------------------+
  |                              LIBRERIAS                             |

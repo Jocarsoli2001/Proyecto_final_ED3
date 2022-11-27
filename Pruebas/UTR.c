@@ -5,7 +5,7 @@
 	Por: Alejandro Ramirez - 20388, Jose Santizo - 20185
     
     TODAS LAS ENTRADAS  TIENEN CONFIGURACION PULL-DOWN.  
-       
+    // Compilar con -lwiringPi -lwiringPiDev -lpthread   
 */
 /*
  +--------------------------------------------------------------------+
