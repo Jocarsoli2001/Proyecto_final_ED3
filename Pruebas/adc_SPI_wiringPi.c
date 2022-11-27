@@ -75,7 +75,8 @@ int main(void)
 		ADCvalue = get_ADC(ADC_CHANNEL);
 
 		// Copia de buffer hacia archivo final
-
+		// El valor insertado en el Buffer final debe ser recovertido en Exel por
+		// la relación 3.33v/1024bits
 		sprintf(ADC, "%d,%d\n", cont, ADCvalue);
 		strcpy(Buffer[cont], ADC);
 

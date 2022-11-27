@@ -44,6 +44,7 @@
 #define PUSH2 21
 #define INTE1 20
 #define INTE2 16
+#define INTE3 6
 #define RELAY1 26
 #define RELAY2 19
 
@@ -52,15 +53,16 @@ int F_P  = 0;
 int F_P2 = 0;
 int F_I  = 0;
 int F_I2 = 0;
+int F_I3 = 0;
 // Estados de interrupcions propios de switches, almacenan estados 
 // iniciales o anteriores.
 int E_I  = 0;
 int E_I2 = 0;
-
+int E_I3 = 0;
 // Variable basura, para verificar que no se registran mas pulsaciones
 // de las esperadas.
-int eventCounter  = 0;
-int eventCounter2 = 0;
+int eventCounter  = 1;
+int eventCounter2 = 1;
 
 /*
  +--------------------------------------------------------------------+
@@ -76,6 +78,7 @@ void Lec_PeI(void);
  +--------------------------------------------------------------------+
 */ 
 int main(void) {
+    
     // sets up the wiringPi library
     if (wiringPiSetupGpio () < 0) {
       printf ("Unable to setup wiringPi: %s\n");
@@ -99,6 +102,10 @@ int main(void) {
       printf ("Unable to setup ISR: %s\n");
       return 1;
     }
+    if ( wiringPiISR (INTE3, INT_EDGE_BOTH, &myInterrupt) < 0 ) {
+      printf ("Unable to setup ISR: %s\n");
+      return 1;
+    }
     
     // Configuracion de los gpios
     pinMode(RELAY1, OUTPUT);
@@ -107,15 +114,18 @@ int main(void) {
     pinMode(PUSH2, INPUT);
     pinMode(INTE1, INPUT);
     pinMode(INTE2, INPUT);
-
+    pinMode(INTE3, INPUT);
+    
     // Valor de los estados de interrupcion
     E_I  = digitalRead(INTE1);
     E_I2 = digitalRead(INTE2);
+    E_I3 = digitalRead(INTE3);
 
     // Creacion de los hilos
     pthread_t thread1;
     pthread_create(&thread1, NULL, (void*)&Lec_PeI, NULL);
     
+    printf(" Prueba interrupciones GPIOs\n");
     // display counter value every second.
     while ( 1 ) {
         
@@ -137,7 +147,7 @@ void Lec_PeI(void){
             usleep(50000);
             digitalWrite(RELAY1, HIGH);
             usleep(50000);
-            printf("Interrupcion1: %d\n",eventCounter);
+            printf(" Push_B1: %d\n",eventCounter);
             eventCounter++;
             F_P = 0;
         }
@@ -147,19 +157,24 @@ void Lec_PeI(void){
             usleep(50000);
             digitalWrite(RELAY2, HIGH);
             usleep(50000);
-            printf("Interrupcion2: %d\n",eventCounter2);
+            printf(" Push_B2: %d\n",eventCounter2);
             eventCounter2++;
             F_P2 = 0;
         }
         if(F_I == 1){
             // Accion a ejecutar con el interruptor 1
             F_I = 0;
-            printf("1 Hubo un cambio, rey.\n");
+            printf(" Cambio en Dip Switch 1.\n");
         }
         if(F_I2 == 1){
             // Accion a ejecutar con el interruptor 2
             F_I2 = 0;
-            printf("2 Hubo un cambio, rey.\n");
+            printf(" Cambio en Dip Switch 2.\n");
+        }
+        if(F_I3 == 1){
+            // Accion a ejecutar con el interruptor 2
+            F_I3 = 0;
+            printf(" Cambio en Dip Switch 3.\n");
         }
         usleep(10000);
     }
@@ -204,6 +219,10 @@ void myInterrupt(void) {
     if(digitalRead(INTE2) != E_I2){
         F_I2 = 1;
         E_I2 = !E_I2;
+    }
+    if(digitalRead(INTE3) != E_I3){
+        F_I3 = 1;
+        E_I3 = !E_I3;
     }
     
     usleep(10000);
