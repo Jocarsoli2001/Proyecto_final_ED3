@@ -1,5 +1,5 @@
 /*
-	Prueba_interrupciones_Completa.c
+	Código para ejecutar en las Unidades Terminales Remotas (UTR)
 	19 nov 22, Guatemala, Guatemala
 	Universidad del Valle, Electrónica Digital 3
 	Por: Alejandro Ramirez - 20388, Jose Santizo - 20185
