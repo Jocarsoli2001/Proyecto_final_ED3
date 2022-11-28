@@ -1,102 +1,86 @@
 /*
-
-José Carlo Santizo Olivet - Carné 20185
-Prueba interrupciones
-
+ +--------------------------------------------------------------------+
+ |                              LIBRERIAS                             |
+ +--------------------------------------------------------------------+
 */
-
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <sys/timerfd.h>
-#include <time.h>
-#include <semaphore.h>
-#include <pthread.h>
+#include <unistd.h>
 #include <errno.h>
+#include <string.h>
 #include <wiringPi.h>
+/*
+ +--------------------------------------------------------------------+
+ |                         VARIABLES GLOBALES                         |
+ +--------------------------------------------------------------------+
+*/ 
+// Use GPIO Pin 17, which is Pin 0 for wiringPi library
+int F_P = 0;
+#define BUTTON_PIN 12
+#define LED 26
 
-//------------------------------------------ Definiciones ------------------------------------------
-#define BUTTON_PIN 27
-#define LED1 12
-#define LED2 25
+// the event counter 
+int eventCounter = 0;
 
-//----------------------------- Declaraciones de variables globales --------------------------------
-// Definición para generar FIFOs
-int dummy;
-int tuboi;		                                        // Para los file descriptors
-int Num_M = 0;
-int Num_N = 0;
+// -------------------------------------------------------------------------
+/*
+ +--------------------------------------------------------------------+
+ |                      PROTOTIPOS DE FUNCIONES                       |
+ +--------------------------------------------------------------------+
+*/
+void myInterrupt(void) {
 
-// Variables para generar array de chars
+    
+    if(digitalRead(BUTTON_PIN) == 1){
+        F_P=1;
+    }
+    /*
+    if(digitalRead(BUTTON_PIN) == 0 && F_P == 1){
+        digitalWrite(LED, LOW);
+        usleep(500000);
+        digitalWrite(LED, HIGH);
+        usleep(500000);
+        printf("Interrupcion\n");
+        eventCounter++;
+         F_P=1;
+    }
+    */
 
+}
 
-// Variable para Semaphore
-sem_t my_semaphore;
-
-//------------------------------------ Prototipo de funciones --------------------------------------
-void hilo1(void *ptr);
-void hilo2(void *ptr);
-void Funcion(void *ptr);
-void impresion_final();
-void myInterrupt(void);
-
-//-------------------------------------------- Main ------------------------------------------------
+/* 	
+ +--------------------------------------------------------------------+
+ |                                MAIN                                |
+ +--------------------------------------------------------------------+
+*/ 
 int main(void) {
-
-    // Setup de WiringPi
-	wiringPiSetupGpio();
-	wiringPiSetupSys();
-
+    // sets up the wiringPi library
+    if (wiringPiSetupGpio () < 0) {
+      printf ("Unable to setup wiringPi: %s\n");
+      return 1;
+    }
+    
+    pinMode(LED, OUTPUT);
+    pinMode(BUTTON_PIN, INPUT);
     // set Pin 17/0 generate an interrupt on high-to-low transitions
     // and attach myInterrupt() to the interrupt
-    if (wiringPiISR (BUTTON_PIN, INT_EDGE_FALLING, &myInterrupt) < 0 ) 
-    {
-        fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
-        return 1;
+    if ( wiringPiISR (BUTTON_PIN, INT_EDGE_RISING, &myInterrupt) < 0 ) {
+      printf ("Unable to setup ISR: %s\n");
+      return 1;
     }
-
-    // Declaración de pines
-    pinMode(BUTTON_PIN, INPUT);
-    pinMode(LED1, OUTPUT);
-    pinMode(LED2, OUTPUT);
 
     // display counter value every second.
     while ( 1 ) {
-        
-        // Prender LED1
-        digitalWrite(LED1, HIGH);
-
-        // Sleep de un 1 segundo
-        sleep(1);
-
-        // Prender LED2 y apagar LED1
-        digitalWrite(LED1, LOW);
-
-        // Sleep de un segundo
-        sleep(1);
-
+        if(digitalRead(BUTTON_PIN) == 1 && F_P == 1){
+            digitalWrite(LED, LOW);
+            usleep(50000);
+            digitalWrite(LED, HIGH);
+            usleep(50000);
+            printf("Interrupcion: %d\n",eventCounter);
+            eventCounter++;
+            F_P = 0;
+        }
     }
 
     return 0;
 }
-
-//----------------------------------------- Funciones ----------------------------------------------
-void myInterrupt(void) {
-   
-   // Para prender LEDs cuando exista una interrupción
-   digitalWrite(LED2, HIGH);
-
-   sleep(5);
-
-   digitalWrite(LED2, LOW);
-
-   sleep(1);
-
-}
-
-
